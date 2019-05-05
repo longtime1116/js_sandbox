@@ -57,7 +57,7 @@ function mcv_cv(ss, targetSheets) {
 
 
 
-function fill_cost_duo(ss, valueHash, sheet, i){
+function fill_cost(ss, valueHash, sheet, i){
   const tgRowFrom = 3;
   const tgColFrom = 1;
   const tgRowCount = 100;
@@ -80,7 +80,7 @@ function fill_cost_duo(ss, valueHash, sheet, i){
 
 
 
-function cost_duo(ss, targetSheets) { 
+function cost(ss, targetSheets) { 
   //シートオブジェクトを取得
   const sheet1 = ss.getSheetByName("コスト貼り付け");
   
@@ -95,23 +95,60 @@ function cost_duo(ss, targetSheets) {
   var valueHash = {};
   values.forEach(
     function(value) {
-      valueHash[value[0]] = [value[1], value[2]];
+      valueHash[value[0]] = [value[1], value[2], value[3]];
     }
   )
   for (var i in targetSheets) {
-    fill_cost_duo(ss, valueHash, targetSheets[i], i);
+    fill_cost(ss, valueHash, targetSheets[i], i);
   }
 }
 
 
+function mcv_cv_lakubi(ss, targetSheet) {
+  const sheet1 = ss.getSheetByName("adebis");
+  
+  const vRowFrom = 2;
+  const vColFrom = 5;
+  const vRowCount = 100;
+  const vColCount = 10;
+  
+  //セルの内容を2次元配列に格納
+  const values = sheet1.getSheetValues(vRowFrom, vColFrom, vRowCount, vColCount);
+  
+  
+  var valueHash = {};
+  values.forEach(function(value) {
+    var cvSum = 0;
+    for (var i=4; i<11; i++){
+      // null, num,0, "",はfalse扱い
+      if(value[i]){
+        cvSum += value[i]
+      }
+      
+    }
+    valueHash[value[0]] = [value[3], cvSum];
+  }
+                )
+  
+  fill_mcv_cv(ss, valueHash, targetSheet);
+  
+  return;
+}
 
-function on_edit() {
+
+
+// この名前は特別で、トリガー設定しなくても編集時に自動で実行される
+function onEdit() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const targetSheetsStr = ["バーム紐づけ", "ホワイト紐づけ"];
   const targetSheets = [];
+  const targetSheetLakubi = ss.getSheetByName("LAKUBI紐づけ");
+  
   for (var i in targetSheetsStr) {
-      targetSheets.push(ss.getSheetByName(targetSheetsStr[i]));
+    targetSheets.push(ss.getSheetByName(targetSheetsStr[i]));
   }
   mcv_cv(ss, targetSheets);
-  cost_duo(ss, targetSheets);
+  mcv_cv_lakubi(ss, targetSheetLakubi);
+  
+  cost(ss, [].concat.apply([], [targetSheets, targetSheetLakubi]));
 }
