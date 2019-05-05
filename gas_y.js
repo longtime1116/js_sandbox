@@ -1,21 +1,19 @@
-function mcv_cv_of(value_hash, sheetString){
+function fill_mcv_cv(ss, valueHash, sheetString){
   const sheet  = ss.getSheetByName(sheetString);
   const tgRowFrom = 3;
   const tgColFrom = 7;
   const tgRowCount = 100;
-  //const tgRowCount = sheet.getMaxRows();
   const tgColCount = 15;
-  //const tgColCount = sheet.getMaxColumns();
- 
+  
   const targets = sheet.getSheetValues(tgRowFrom, tgColFrom, tgRowCount, tgColCount);
   
   var sums = [];
   targets.forEach(function(keys){
     var sum = [0, 0];
     keys.forEach(function(key){
-      if (value_hash[key]) {
-        sum[0]+=value_hash[key][0];
-        sum[1]+=value_hash[key][1];
+      if (valueHash[key]) {
+        sum[0]+=valueHash[key][0];
+        sum[1]+=valueHash[key][1];
       }
     })
     sums.push(sum);
@@ -24,21 +22,20 @@ function mcv_cv_of(value_hash, sheetString){
   return;
 }
 function mcv_cv() {
-  //シートオブジェクトを取得
-  const ss     = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet1  = ss.getSheetByName("webantenna");
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet1 = ss.getSheetByName("webantenna");
+  const targetSheets = ["バーム紐づけ", ["ホワイト紐づけ"]];
   
   const vRowFrom = 2;
   const vColFrom = 1;
   const vRowCount = 100;
-  //const vRowCount = sheet1.getMaxRows();
   const vColCount = 3;
   
   
   //セルの内容を2次元配列に格納
   const values = sheet1.getSheetValues(vRowFrom, vColFrom, vRowCount, vColCount);
-
-  // NOTE: value_hash とは?
+  
+  // NOTE: valueHash とは、媒体ごとの MCV/CV をまとめたもの
   // key: 媒体名
   // value: [<mcv>, <cv>]
   // (例)
@@ -46,15 +43,17 @@ function mcv_cv() {
   //    "DUO直定期Ap1": [10, 20],
   //    "DUO直定期Ap16Q": [2, 5]
   // }
-  var value_hash = {};
+  var valueHash = {};
   values.forEach(
     function(value) {
-      value_hash[value[0]] = [value[1], value[2]];
+      valueHash[value[0]] = [value[1], value[2]];
     }
   )
-
-  mcv_cv_of(value_hash, "バーム紐づけ");
-  mcv_cv_of(value_hash, "ホワイト紐づけ");
+  
+  // 対象のシートそれぞれの MCV/CVの列を埋めていく
+  for (var i in targetSheets) {
+      fill_mcv_cv(ss, valueHash, targetSheets[i]);
+  }
   
   return;
 }
@@ -80,21 +79,15 @@ function cost_balm() {
   //セルの内容を2次元配列に格納
   //const values = sheet.getSheetValues(1, colFrom, sheet.getMaxRows(), colTo);
   const values = sheet1.getSheetValues(vRowFrom, vColFrom, vRowCount, vColCount);
-  Logger.log("<values>");
-  Logger.log(values);
   
   const targets = sheet2.getSheetValues(tgRowFrom, tgColFrom, tgRowCount, tgColCount);
-  Logger.log("<targets>");
-  Logger.log(targets);
   
-  var value_hash = {};
+  var valueHash = {};
   values.forEach(
     function(value) {
-      value_hash[value[0]] = value[1];
+      valueHash[value[0]] = value[1];
     }
   )
-  Logger.log("<value_hash>");
-  Logger.log(value_hash);
   
   
   
@@ -104,13 +97,13 @@ function cost_balm() {
   
   var sums = [];
   targets.forEach(function(keys){
-    if (value_hash[keys]){
-      sums.push(value_hash[keys]);
+    if (valueHash[keys]){
+      sums.push(valueHash[keys]);
     } else {
       sums.push("");
     }
-    Logger.log(sums);
   })
   return sums;
 }
+
 
