@@ -24,7 +24,7 @@ function fill_mcv_cv(ss, valueHash, sheetString){
 function mcv_cv() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet1 = ss.getSheetByName("webantenna");
-  const targetSheets = ["バーム紐づけ", ["ホワイト紐づけ"]];
+  const targetSheets = ["バーム紐づけ", "ホワイト紐づけ"];
   
   const vRowFrom = 2;
   const vColFrom = 1;
