@@ -1,5 +1,4 @@
-function fill_mcv_cv(ss, valueHash, sheetString){
-  const sheet  = ss.getSheetByName(sheetString);
+function fill_mcv_cv(ss, valueHash, sheet){
   const tgRowFrom = 3;
   const tgColFrom = 7;
   const tgRowCount = 100;
@@ -21,16 +20,14 @@ function fill_mcv_cv(ss, valueHash, sheetString){
   sheet.getRange("D3:E" + (3+sums.length-1).toString()).setValues(sums);
   return;
 }
-function mcv_cv() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+function mcv_cv(ss, targetSheets) {
   const sheet1 = ss.getSheetByName("webantenna");
-  const targetSheets = ["バーム紐づけ", "ホワイト紐づけ"];
   
   const vRowFrom = 2;
   const vColFrom = 1;
   const vRowCount = 100;
   const vColCount = 3;
-  
   
   //セルの内容を2次元配列に格納
   const values = sheet1.getSheetValues(vRowFrom, vColFrom, vRowCount, vColCount);
@@ -52,58 +49,69 @@ function mcv_cv() {
   
   // 対象のシートそれぞれの MCV/CVの列を埋めていく
   for (var i in targetSheets) {
-      fill_mcv_cv(ss, valueHash, targetSheets[i]);
+    fill_mcv_cv(ss, valueHash, targetSheets[i]);
   }
   
   return;
 }
 
 
-function cost_balm() {
+
+function fill_cost_duo(ss, valueHash, sheet, i){
+  const tgRowFrom = 3;
+  const tgColFrom = 1;
+  const tgRowCount = 100;
+  const tgColCount = 1;
+  
+  const targets = sheet.getSheetValues(tgRowFrom, tgColFrom, tgRowCount, tgColCount);
+  
+  var sums = [];
+  targets.forEach(function(key){
+    if (valueHash[key]){
+      sums.push([valueHash[key][i]]);
+    } else {
+      sums.push([""]);
+    }
+  })
+  sheet.getRange("F3:F" + (3+sums.length-1).toString()).setValues(sums);
+  return;
+}
+
+
+
+
+function cost_duo(ss, targetSheets) { 
   //シートオブジェクトを取得
-  const ss     = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet1  = ss.getSheetByName("コスト貼り付け");
-  const sheet2  = ss.getSheetByName("バーム紐づけ");
+  const sheet1 = ss.getSheetByName("コスト貼り付け");
   
   const vRowFrom = 3;
   const vColFrom = 2;
-  const vRowCount = 25;
-  const vColCount = 4;
-  
-  const tgRowFrom = 3;
-  const tgColFrom = 3;
-  const tgRowCount = 30;
-  const tgColCount = 1;
-  
+  const vRowCount = 50;
+  const vColCount = 10;
   
   //セルの内容を2次元配列に格納
-  //const values = sheet.getSheetValues(1, colFrom, sheet.getMaxRows(), colTo);
   const values = sheet1.getSheetValues(vRowFrom, vColFrom, vRowCount, vColCount);
-  
-  const targets = sheet2.getSheetValues(tgRowFrom, tgColFrom, tgRowCount, tgColCount);
   
   var valueHash = {};
   values.forEach(
     function(value) {
-      valueHash[value[0]] = value[1];
+      valueHash[value[0]] = [value[1], value[2]];
     }
   )
-  
-  
-  
-  // targets
-  //りんご	みかん
-  //ばなな	みかん
-  
-  var sums = [];
-  targets.forEach(function(keys){
-    if (valueHash[keys]){
-      sums.push(valueHash[keys]);
-    } else {
-      sums.push("");
-    }
-  })
-  return sums;
+  for (var i in targetSheets) {
+    fill_cost_duo(ss, valueHash, targetSheets[i], i);
+  }
 }
 
 
+
+function on_edit() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const targetSheetsStr = ["バーム紐づけ", "ホワイト紐づけ"];
+  const targetSheets = [];
+  for (var i in targetSheetsStr) {
+      targetSheets.push(ss.getSheetByName(targetSheetsStr[i]));
+  }
+  mcv_cv(ss, targetSheets);
+  cost_duo(ss, targetSheets);
+}
