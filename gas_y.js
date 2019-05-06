@@ -136,19 +136,25 @@ function mcv_cv_lakubi(ss, targetSheet) {
 }
 
 
-
 // この名前は特別で、トリガー設定しなくても編集時に自動で実行される
 function onEdit() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const targetSheetsStr = ["バーム紐づけ", "ホワイト紐づけ"];
-  const targetSheets = [];
-  const targetSheetLakubi = ss.getSheetByName("LAKUBI紐づけ");
-  
-  for (var i in targetSheetsStr) {
-    targetSheets.push(ss.getSheetByName(targetSheetsStr[i]));
+  var edit_sheet_name = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet().getSheetName();
+  Logger.log(edit_sheet_name);
+  if (edit_sheet_name == "コスト貼り付け" || edit_sheet_name == "webantenna" || edit_sheet_name == "adebis"){
+    const targetSheetsStr = ["バーム紐づけ", "ホワイト紐づけ"];
+    const targetSheets = [];
+    for (var i in targetSheetsStr) {
+      targetSheets.push(ss.getSheetByName(targetSheetsStr[i]));
+    }
+    const targetSheetLakubi = ss.getSheetByName("LAKUBI紐づけ");
+
+    if (edit_sheet_name == "webantenna" || edit_sheet_name == "adebis"){
+      mcv_cv(ss, targetSheets);
+      mcv_cv_lakubi(ss, targetSheetLakubi);
+    }
+    else {
+      cost(ss, [].concat.apply([], [targetSheets, targetSheetLakubi]));
+    }
   }
-  mcv_cv(ss, targetSheets);
-  mcv_cv_lakubi(ss, targetSheetLakubi);
-  
-  cost(ss, [].concat.apply([], [targetSheets, targetSheetLakubi]));
 }
