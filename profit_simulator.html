@@ -1,0 +1,42 @@
+
+<form name="form">
+初期投資額　　　： <input type="number" name="init" value="0">
+毎月積立額　　　： <input type="number" name="amount" value="10000">
+積立年数　　　　： <input type="number" name="years" value="10">
+積立後放置年数　： <input type="number" name="yearsLater" value="0">
+期待リターン (%)： <input type="number" name="rate" value="4">
+<input type="button" value="計算" onclick="calc()">
+</form>
+<div id="result"></div>
+
+
+
+
+<script type="text/javascript">function calc(){
+  var init = Number(form.init.value);
+  var amount = Number(form.amount.value);
+  var years = Number(form.years.value);
+  var yearsLater = Number(form.yearsLater.value);
+  var rate = parseFloat(form.rate.value)/100.0;
+  var ganpon = init + amount * 12 * years;
+  var r = Math.pow(1.0+rate, 1/12);
+  var result = init;
+  for (i = 0; i < years*12; i++) {
+    result += amount; result *= r;
+  }
+  var tsumitateFinished = result;
+  for (i = 0; i < yearsLater*12; i++) {
+    result *= r;
+  }
+  var profitRate = Math.round(((result / ganpon) * 100 - 100));
+  document.getElementById('result').innerHTML =
+      "元本　　　　　　　：" + ganpon.toLocaleString() + " 円<br>" +
+      "積立終了時評価額　：" + Math.floor(tsumitateFinished).toLocaleString() +" 円</br>" +
+      "放置後評価額　　　：" + Math.floor(result).toLocaleString() +" 円</br>" +
+      "利益率　　　　　　：" + profitRate +" % </br></br></br>";
+} </script>
+
+
+
+
+<script type="text/javascript">function calc(){ var init = Number(form.init.value); var amount = Number(form.amount.value); var years = Number(form.years.value); var yearsLater = Number(form.yearsLater.value); var rate = parseFloat(form.rate.value)/100.0; var ganpon = init + amount * 12 * years; var r = Math.pow(1.0+rate, 1/12); var result = init; for (i = 0; i < years*12; i++) { result += amount; result *= r; } var tsumitateFinished = result; for (i = 0; i < yearsLater*12; i++) { result *= r; } var profitRate = Math.round(((result / ganpon) * 100 - 100)); document.getElementById('result').innerHTML = "元本　　　　　　　：" + ganpon.toLocaleString() + " 円<br>" + "積立終了時評価額　：" + Math.floor(tsumitateFinished).toLocaleString() +" 円</br>" + "放置後評価額　　　：" + Math.floor(result).toLocaleString() +" 円</br>" + "利益率　　　　　　：" + profitRate +" % </br></br></br>"; } </script>
